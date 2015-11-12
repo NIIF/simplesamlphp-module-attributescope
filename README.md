@@ -15,7 +15,10 @@ _config/config.php_
 ```
    authproc.sp = array(
        ...
-       '60' => array(
-            'class' => 'attributescope:FilterAttributes'
+        // 49 => array('class' => 'core:AttributeMap', 'oid2name'),
+        50 => array(
+            'class' => 'attributescope:FilterAttributes',
+            // Default scoped attributes. You can override by your attributes.
+            // 'scopedattributes' => array('eduPersonPrincipalName', 'eduPersonScopedAffiliation'),
        ),
 ```

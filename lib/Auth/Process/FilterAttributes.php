@@ -8,6 +8,20 @@
  */
 class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Auth_ProcessingFilter
 {
+
+    private $scopedattributes = array(
+        'eduPersonPrincipalName',
+        'eduPersonScopedAffiliation'
+        );
+
+    public function __construct($config, $reserved)
+    {
+        parent::__construct($config, $reserved);
+        if (array_key_exists('scopedattributes', $config)) {
+            $this->scopedattributes = $config['scopedattributes'];
+        }
+    }
+
     /**
      * Apply filter.
      *
@@ -16,25 +30,19 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
     public function process(&$request)
     {
         $src = $request['Source'];
-        if (!isset($src['scopedattributes']) ||
-                !is_array($src['scopedattributes']) ||
-                !count($src['scopedattributes'])) {
+        if (!isset($src['scope']) ||
+                !is_array($src['scope']) ||
+                !count($src['scope'])) {
+            SimpleSAML_Logger::warning("The IdP does not have scope! entityId: ". $src['entityid']);
             return;
         }
-        $scopedAttributes = $src['scopedattributes'];
+        $scopes = $src['scope'];
 
-        if (!isset($src['scopes']) ||
-                !is_array($src['scopes']) ||
-                !count($src['scopes'])) {
-            return;
-        }
-        $scopes = $src['scopes'];
-
-        foreach ($scopedAttributes as $scopedAttribute) {
-            if (!isset($request['Attributes'][$scopedAttribute])) {
+        foreach ($this->scopedattributes as $scopedattribute) {
+            if (!isset($request['Attributes'][$scopedattribute])) {
                 continue;
             }
-            $values = $request['Attributes'][$scopedAttribute];
+            $values = $request['Attributes'][$scopedattribute];
             $newValues = array();
             foreach ($values as $value) {
                 if ($this->isProperlyScoped($value, $scopes)) {
@@ -43,7 +51,7 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
                     SimpleSAML_Logger::warning("Attribute value $value is not properly scoped");
                 }
             }
-            $request['Attributes'][$scopedAttribute] = $newValues;
+            $request['Attributes'][$scopedattribute] = $newValues;
         }
     }
 
