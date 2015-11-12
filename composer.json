@@ -1,0 +1,8 @@
+{
+    "name": "niif/simplesamlphp-module-attributescope",
+    "description": "Filter to remove attribute values which are not properly scoped.",
+    "type": "simplesamlphp-module",
+    "require": {
+        "simplesamlphp/composer-module-installer": "^1.1"
+    }
+}
