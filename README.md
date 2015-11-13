@@ -7,8 +7,8 @@ Attributescope filter module
 * `schacHomeorganization` attribute if doesn't match against a value from `shibmd:Scope`
 
 ## Note
-* regexp
-* attributemap names
+* Regexp value for `shibmd:Scope` is not supported.
+* Configured attribute names MUST match with names in attributemaps. It is case-sensitive.
 
 ## Install module
 You can install the module with composer:
