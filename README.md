@@ -6,7 +6,7 @@ have the right scopes defined in the entity metadata.
 
 It removes values 
 * that should be scoped (see `attributesWithScope` below) but are not;
-* whose scope does not match `[shibmd:Scope](https://wiki.shibboleth.net/confluence/display/SC/ShibMetaExt+V1.0)` element in the metadata.
+* whose scope does not match [shibmd:Scope](https://wiki.shibboleth.net/confluence/display/SC/ShibMetaExt+V1.0) element in the metadata.
 
 Additionally, it is also capable to handle 'scope attributes' such as _schacHomeOrganization_ that should be equivalent to `shibmd:Scope` element in the metadata.
 
