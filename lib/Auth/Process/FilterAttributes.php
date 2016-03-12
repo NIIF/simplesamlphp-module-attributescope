@@ -51,7 +51,7 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
             SimpleSAML_Logger::warning('No scope extension in IdP metadata, all scoped attributes are filtered out!');
             $noscope = true;
         }
-        $scopes = $src['scope'];
+        $scopes = $noscope ? array() : $src['scope'];
 
         foreach ($this->attributesWithScope as $attributesWithScope) {
             if (!isset($request['Attributes'][$attributesWithScope])) {
