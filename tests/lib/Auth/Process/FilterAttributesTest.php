@@ -37,7 +37,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         $result = self::processFilter($config, $request);
         $attributes = $result['Attributes'];
         $expectedData = array('nonScopedAttribute' => array('not-removed'));
-        $this->assertEquals($expectedData, $attributes, "Only none-scoped attributes should be removed");
+        $this->assertEquals($expectedData, $attributes, "Only incorrectly scoped attributes should be removed");
     }
 
     /**
@@ -82,7 +82,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         );
         $result = self::processFilter($config, $request);
         $attributes = $result['Attributes'];
-        $this->assertEquals($expectedData, $attributes, "All attributes survived");
+        $this->assertEquals($expectedData, $attributes, "All attributes should survive");
     }
 
     /**
@@ -100,7 +100,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
     }
 
     /**
-     * Test correct scope when multi-valued attribute has some conforming and some none-conforming values
+     * Test correct scope when multi-valued attribute has some conforming and some non-conforming values
      */
     public function testMixedMultivaluedAttributes()
     {
@@ -118,9 +118,8 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         $expectedData = array(
             'nonScopedAttribute' => array('not-removed'),
             'eduPersonScopedAffiliation' => array('student@example.com'),
-//            'schacHomeOrganization' => array('example.com')
         );
         $attributes = $result['Attributes'];
-        $this->assertEquals($expectedData, $attributes, "All attributes survived");
+        $this->assertEquals($expectedData, $attributes, "Incorrectly scoped values should be removed");
     }
 }
