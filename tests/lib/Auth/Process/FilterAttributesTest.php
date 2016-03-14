@@ -29,7 +29,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
             'Attributes' => array(
                 'eduPersonPrincipalName' => array('joe@example.com'),
                 'nonScopedAttribute' => array('not-removed'),
-                'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com'),
+                'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com', 'missing-scope'),
                 'schacHomeOrganization' => array('example.com')
             ),
             'Source' => $source,
@@ -108,11 +108,14 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         $request = array(
             'Attributes' => array(
                 'nonScopedAttribute' => array('not-removed'),
-                'eduPersonScopedAffiliation' => array('faculty@abc.con', 'student@example.com', 'staff@other.com'),
+                'eduPersonScopedAffiliation' => array('faculty@abc.com', 'student@example.com', 'staff@other.com'),
                 // schacHomeOrganization is required to be single valued and gets filtered out if multi-valued
                 'schacHomeOrganization' => array('abc.com', 'example.com', 'other.com')
             ),
-            'Source' => array('scope' => array('example.com')),
+            'Source' => array(
+                'scope' => array('example.com'),
+                'entityid' => 'https://example.com/idp'
+            ),
         );
         $result = self::processFilter($config, $request);
         $expectedData = array(
@@ -121,5 +124,43 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         );
         $attributes = $result['Attributes'];
         $this->assertEquals($expectedData, $attributes, "Incorrectly scoped values should be removed");
+    }
+
+    /**
+     * Test disabling scope check for specific entityIds
+     */
+    public function testIgnoreSourceScope()
+    {
+
+        $expectedData = array(
+            'nonScopedAttribute' => array('not-removed'),
+            'eduPersonScopedAffiliation' => array('faculty@abc.com', 'student@example.com', 'staff@other.com'),
+            'schacHomeOrganization' => array('random.com')
+        );
+        $request = array(
+            'Attributes' => $expectedData,
+            'Source' => array(
+                'scope' => array('example.com'),
+                'entityid' => 'https://example.com/idp'
+            )
+        );
+
+        // Test with entity ID that does NOT match the Source
+        $config = array(
+            'ignoreCheckForEntities' => array('https://NOMATCH.com/idp')
+        );
+        $result = self::processFilter($config, $request);
+
+        $attributes = $result['Attributes'];
+        $this->assertFalse(array_key_exists('schacHomeOrganization', $attributes), 'Scope check shouldn\t be ignored');
+
+        // Test with entity ID that does match the Source
+        $config = array(
+            'ignoreCheckForEntities' => array('https://example.com/idp')
+        );
+        $result = self::processFilter($config, $request);
+
+        $attributes = $result['Attributes'];
+        $this->assertEquals($expectedData, $attributes, "Scope check ignored");
     }
 }
