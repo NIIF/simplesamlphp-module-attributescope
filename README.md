@@ -13,6 +13,7 @@ Additionally, it is also capable to handle 'scope attributes' such as _schacHome
 ## Notes and limitations
 * Regular expressions in `shibmd:Scope` are not supported.
 * It is recommended to run this filter after _oid2name_. Please note that attribute names in the module configuration are case sensitive and must match the names in attributemaps.
+* 'scope Attributes' must be singled valued, otherwise they are removed.
 
 ## Installing the module
 You can install the module with composer:
@@ -36,3 +37,9 @@ _config/config.php_
             // 'scopeAttributes' => array('schacHomeOrganization'),
        ),
 ```
+
+## Configurations Options
+
+* `attributesWithScope` an array of attributes that should be scoped and should match the scope from the metadata
+* `scopeAttributes` an array of attributes that should exactly match the scope from the metadata
+* `ignoreCheckForEntities` an array of IdP entity IDs to skip scope checking for. Useful when an IdP is a SAML proxy and is trusted to assert any scope.

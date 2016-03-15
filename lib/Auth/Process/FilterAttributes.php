@@ -25,6 +25,8 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
         'schacHomeOrganization',
         );
 
+    private $ignoreCheckForEntities = array();
+
     public function __construct($config, $reserved)
     {
         parent::__construct($config, $reserved);
@@ -33,6 +35,9 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
         }
         if (array_key_exists('scopeAttributes', $config)) {
             $this->scopeAttributes = $config['scopeAttributes'];
+        }
+        if (array_key_exists('ignoreCheckForEntities', $config)) {
+            $this->ignoreCheckForEntities = $config['ignoreCheckForEntities'];
         }
     }
 
@@ -44,6 +49,12 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
     public function process(&$request)
     {
         $src = $request['Source'];
+
+        if (isset($src['entityid']) && in_array($src['entityid'], $this->ignoreCheckForEntities, true)) {
+            SimpleSAML_Logger::debug('Ignoring scope checking for assertions from ' . $src['entityid']);
+            return;
+        }
+
         $noscope = false;
         if (!isset($src['scope']) ||
                 !is_array($src['scope']) ||
