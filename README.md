@@ -41,5 +41,9 @@ _config/config.php_
 ## Configurations Options
 
 * `attributesWithScope` an array of attributes that should be scoped and should match the scope from the metadata
+* `attributesWithScopeSuffix` an array of attributes that have the scope as a suffix. For example, `user@department.example.com` 
+and `department.example.com` are both suffixed with `example.com`. Useful when an SP is reliant on `mail` attribute to identify users and
+the IdP users various subdomains for mail.
 * `scopeAttributes` an array of attributes that should exactly match the scope from the metadata
 * `ignoreCheckForEntities` an array of IdP entity IDs to skip scope checking for. Useful when an IdP is a SAML proxy and is trusted to assert any scope.
+

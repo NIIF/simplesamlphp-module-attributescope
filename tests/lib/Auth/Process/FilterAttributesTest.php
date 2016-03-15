@@ -24,13 +24,16 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
      */
     public function testWrongScope($source)
     {
-        $config = array();
+        $config = array(
+            'attributesWithScopeSuffix' => array('sampleSuffixedAttribute')
+        );
         $request = array(
             'Attributes' => array(
                 'eduPersonPrincipalName' => array('joe@example.com'),
                 'nonScopedAttribute' => array('not-removed'),
                 'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com', 'missing-scope'),
-                'schacHomeOrganization' => array('example.com')
+                'schacHomeOrganization' => array('example.com'),
+                'sampleSuffixedAttribute' => array('joe@example.com'),
             ),
             'Source' => $source,
         );
@@ -162,5 +165,52 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
 
         $attributes = $result['Attributes'];
         $this->assertEquals($expectedData, $attributes, "Scope check ignored");
+    }
+
+    /**
+     * Test attributes values that need to end with the scope or some subdomain of the scope.
+     */
+    public function testAttributeSuffix()
+    {
+
+        $request = array(
+            'Attributes' => array(
+                'department' => array(
+                    'engineering.example.com', // Subdomain
+                    'example.com', // scope
+                    'invalid-example.com', // invalid: not subdomain
+                    'sexample.com', // invalid
+                    'examplecom' // invalid
+                ),
+                'email' => array(
+                    'user@example.com',
+                    'user@gsb.example.com',
+                    'user@invalid-example.com', //invalid
+                    'user@examplecom' //invalid
+                    ),
+            ),
+            'Source' => array(
+                'scope' => array('example.com'),
+                'entityid' => 'https://example.com/idp'
+            )
+        );
+
+        $config = array(
+            'attributesWithScopeSuffix' => array('department', 'email')
+        );
+        $result = self::processFilter($config, $request);
+
+        $attributes = $result['Attributes'];
+        $expectedData = array(
+            'department' => array(
+                'engineering.example.com',
+                'example.com',
+            ),
+            'email' => array(
+                'user@example.com',
+                'user@gsb.example.com',
+            ),
+        );
+        $this->assertEquals($expectedData, $attributes, "Incorrectly suffixed variables should be removed");
     }
 }
