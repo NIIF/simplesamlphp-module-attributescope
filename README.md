@@ -1,6 +1,8 @@
 Attributescope filter module
 ============================
 
+[![Build Status](https://travis-ci.org/NIIF/simplesamlphp-module-attributescope.svg?branch=master)](https://travis-ci.org/NIIF/simplesamlphp-module-attributescope)
+
 This module ensures that scoped attributes (such as eduPersonPrincipalName)
 have the right scopes defined in the entity metadata.
 
