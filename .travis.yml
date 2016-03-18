@@ -10,4 +10,4 @@ matrix:
   allow_failures:
   - php: hhvm
 before_script: composer update --dev
-script: php vendor/phpunit/phpunit/phpunit.php --configuration tools/phpunit
+script: php vendor/phpunit/phpunit/phpunit.php
