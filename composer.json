@@ -1,14 +1,20 @@
 {
     "name": "niif/simplesamlphp-module-attributescope",
     "description": "Filter to remove attribute values which are not properly scoped.",
+    "keywords": [ "simplesamlphp", "scope", "sp", "module", "filter" ],
     "type": "simplesamlphp-module",
     "require": {
         "simplesamlphp/composer-module-installer": "^1.1"
     },
     "require-dev": {
-        "simplesamlphp/simplesamlphp": "1.14"
+        "simplesamlphp/simplesamlphp": "1.14",
+        "phpunit/phpunit": "~3.7"
     },
     "autoload-dev": {
       "files": ["tests/_autoload_modules.php"]
+    },
+    "support": {
+        "issues": "https://github.com/NIIF/simplesamlphp-module-attributescope/issues",
+        "source": "https://github.com/NIIF/simplesamlphp-module-attributescope"
     }
 }
