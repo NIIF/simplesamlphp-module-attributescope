@@ -14,6 +14,8 @@ Additionally, it is also capable to handle 'scope attributes' such as _schacHome
 * Regular expressions in `shibmd:Scope` are not supported.
 * It is recommended to run this filter after _oid2name_. Please note that attribute names in the module configuration are case sensitive and must match the names in attributemaps.
 * 'scope Attributes' must be singled valued, otherwise they are removed.
+* Specifying an attribute in multiple configuration options is likely a user configuration issue. A value will only
+  pass if it conforms to the validation rule for each configured option.
 
 ## Installing the module
 You can install the module with composer:

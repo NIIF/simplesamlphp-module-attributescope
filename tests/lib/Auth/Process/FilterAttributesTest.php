@@ -75,7 +75,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         $expectedData = array(
             'eduPersonPrincipalName' => array('joe@example.com'),
             'nonScopedAttribute' => array('not-removed'),
-            'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com'),
+            'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com', '@example.com'),
             'schacHomeOrganization' => array('example.com')
         );
         $config = array();
@@ -111,7 +111,12 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         $request = array(
             'Attributes' => array(
                 'nonScopedAttribute' => array('not-removed'),
-                'eduPersonScopedAffiliation' => array('faculty@abc.com', 'student@example.com', 'staff@other.com'),
+                'eduPersonScopedAffiliation' => array(
+                    'faculty@abc.com',
+                    'student@example.com',
+                    'staff@other.com',
+                    'member@a@example.com'
+                ),
                 // schacHomeOrganization is required to be single valued and gets filtered out if multi-valued
                 'schacHomeOrganization' => array('abc.com', 'example.com', 'other.com')
             ),
@@ -176,17 +181,26 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         $request = array(
             'Attributes' => array(
                 'department' => array(
+                    // Valid values
                     'engineering.example.com', // Subdomain
                     'example.com', // scope
-                    'invalid-example.com', // invalid: not subdomain
-                    'sexample.com', // invalid
-                    'examplecom' // invalid
+                    '.example.com',
+                    // Invalid values
+                    'invalid-example.com', // not subdomain
+                    'cexample.com',
+                    'examplecom'
                 ),
                 'email' => array(
+                    // Valid values
                     'user@example.com',
                     'user@gsb.example.com',
-                    'user@invalid-example.com', //invalid
-                    'user@examplecom' //invalid
+                    '@example.com',
+                    '@other.example.com',
+                    // Invalid values
+                    'user@invalid-example.com',
+                    'user@examplecom',
+                    'user@cexample.com',
+                    'abc@efg@example.com' // double '@;
                     ),
             ),
             'Source' => array(
@@ -205,10 +219,14 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
             'department' => array(
                 'engineering.example.com',
                 'example.com',
+                '.example.com',
             ),
             'email' => array(
                 'user@example.com',
                 'user@gsb.example.com',
+                '@example.com',
+                '@other.example.com',
+
             ),
         );
         $this->assertEquals($expectedData, $attributes, "Incorrectly suffixed variables should be removed");

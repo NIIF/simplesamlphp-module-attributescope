@@ -164,8 +164,9 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
     private function isProperlySuffixed($value, $scopes)
     {
         foreach ($scopes as $scope) {
-            $preg = '/^(.*[@|.])?'.preg_quote($scope).'$/';
-            if (preg_match($preg, $value) == 1) {
+            $scopeRegex = '/^[^@]*@(.*\.)?'.preg_quote($scope).'$/';
+            $subdomainRegex = '/^([^@]*\.)?'.preg_quote($scope).'$/';
+            if (preg_match($subdomainRegex, $value) === 1 || preg_match($scopeRegex, $value) === 1) {
                 return true;
             }
         }
