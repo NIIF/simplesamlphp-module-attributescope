@@ -29,6 +29,8 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
 
     private $attributesWithScopeSuffix = array();
 
+    private $ignoreCase = false;
+
     public function __construct($config, $reserved)
     {
         parent::__construct($config, $reserved);
@@ -43,6 +45,9 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
         }
         if (array_key_exists('attributesWithScopeSuffix', $config)) {
             $this->attributesWithScopeSuffix = $config['attributesWithScopeSuffix'];
+        }
+        if (array_key_exists('ignoreCase', $config)) {
+            $this->ignoreCase = $config['ignoreCase'];
         }
     }
 
@@ -145,7 +150,7 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
     private function isProperlyScoped($value, $scopes)
     {
         foreach ($scopes as $scope) {
-            $preg = '/^[^@]+@'.preg_quote($scope).'$/';
+            $preg = '/^[^@]+@'.preg_quote($scope).'$/' . ($this->ignoreCase ? 'i' : '');
             if (preg_match($preg, $value) == 1) {
                 return true;
             }
@@ -164,8 +169,8 @@ class sspmod_attributescope_Auth_Process_FilterAttributes extends SimpleSAML_Aut
     private function isProperlySuffixed($value, $scopes)
     {
         foreach ($scopes as $scope) {
-            $scopeRegex = '/^[^@]+@(.*\.)?'.preg_quote($scope).'$/';
-            $subdomainRegex = '/^([^@]*\.)?'.preg_quote($scope).'$/';
+            $scopeRegex = '/^[^@]+@(.*\.)?'.preg_quote($scope).'$/' . ($this->ignoreCase ? 'i' : '');
+            $subdomainRegex = '/^([^@]*\.)?'.preg_quote($scope).'$/' . ($this->ignoreCase ? 'i' : '');
             if (preg_match($subdomainRegex, $value) === 1 || preg_match($scopeRegex, $value) === 1) {
                 return true;
             }
