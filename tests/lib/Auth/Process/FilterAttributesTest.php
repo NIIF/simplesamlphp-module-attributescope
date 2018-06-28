@@ -102,6 +102,30 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
         );
     }
 
+    public function testIgnoreCaseInScope()
+    {
+        $config = array(
+            'attributesWithScopeSuffix' => array('sampleSuffixedAttribute'),
+            'ignoreCase' => true,
+        );
+        $request = array(
+            'Attributes' => array(
+                'eduPersonScopedAffiliation' => array('student@example.com', 'staff@EXAMPLE.COM', 'member@bad.com'),
+                'sampleSuffixedAttribute' => array('joe@example.com', 'bob@EXAMPLE.COM', 'wrong@bad.com'),
+            ),
+            'Source' => array(
+                'scope' => array('example.com')
+            )
+        );
+        $result = self::processFilter($config, $request);
+        $attributes = $result['Attributes'];
+        $expectedData = array(
+            'eduPersonScopedAffiliation' => array('student@example.com', 'staff@EXAMPLE.COM'),
+            'sampleSuffixedAttribute' => array('joe@example.com', 'bob@EXAMPLE.COM'),
+            );
+        $this->assertEquals($expectedData, $attributes, "Scope case is ignored.");
+    }
+
     /**
      * Test correct scope when multi-valued attribute has some conforming and some non-conforming values
      */
@@ -114,6 +138,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
                 'eduPersonScopedAffiliation' => array(
                     'faculty@abc.com',
                     'student@example.com',
+                    'member@EXamPLE.com', // scope is case sensitive
                     'staff@other.com',
                     'member@a@example.com',
                     '@example.com'

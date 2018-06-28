@@ -50,4 +50,10 @@ and `department.example.com` are both suffixed with `example.com`. Useful when a
 the IdP users various subdomains for mail.
 * `scopeAttributes` an array of attributes that should exactly match the scope from the metadata
 * `ignoreCheckForEntities` an array of IdP entity IDs to skip scope checking for. Useful when an IdP is a SAML proxy and is trusted to assert any scope.
+* `ignoreCase` ignore the case of the scoped attribute. The new 'Subject Identifier Attributes' profile stipulates that comparison should be case insensitive. Default is false, for backwards compatability.
 
+# Development
+
+## Runing tests
+
+    ./vendor/phpunit/phpunit/phpunit 
