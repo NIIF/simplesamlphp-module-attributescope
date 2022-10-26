@@ -1,6 +1,9 @@
 <?php
 
-class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+use SimpleSAML\Module\niif\attributescope\Auth\Process\FilterAttributes;
+
+class Test_FilterAttributes extends TestCase
 {
 
     /**
@@ -12,7 +15,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
      */
     private static function processFilter(array $config, array $request)
     {
-        $filter = new sspmod_attributescope_Auth_Process_FilterAttributes($config, null);
+        $filter = new FilterAttributes($config, null);
         $filter->process($request);
         return $request;
     }
@@ -20,7 +23,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
     /**
      * Test scoped attributes don't match scope
      * @param array $source The IDP source info
-     * @dataProvider testWrongScopeDataProvider
+     * @dataProvider wrongScopeDataProvider
      */
     public function testWrongScope($source)
     {
@@ -47,7 +50,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
      * Provide data for the tests
      * @return array test cases with each subtest being array of arguments
      */
-    public function testWrongScopeDataProvider()
+    public function wrongScopeDataProvider()
     {
         return array(
             // Empty Source
@@ -68,7 +71,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
     /**
      * Test correct scope
      * @param array $source The IDP source info
-     * @dataProvider testCorrectScopeDataProvider
+     * @dataProvider correctScopeDataProvider
      */
     public function testCorrectScope($source)
     {
@@ -92,7 +95,7 @@ class Test_sspmod_attributescope_Auth_Process_FilterAttributes extends PHPUnit_F
      * Provide data for the tests
      * @return array test cases with each subtest being array of arguments
      */
-    public function testCorrectScopeDataProvider()
+    public function correctScopeDataProvider()
     {
         return array(
             // Correct scope
