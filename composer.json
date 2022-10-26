@@ -3,18 +3,25 @@
     "description": "Filter to remove attribute values which are not properly scoped.",
     "keywords": [ "simplesamlphp", "scope", "sp", "module", "filter" ],
     "type": "simplesamlphp-module",
+    "autoload": {
+        "psr-4": {
+            "SimpleSAML\\Module\\attributescope\\": "src/"
+        }
+    },
     "require": {
-        "simplesamlphp/composer-module-installer": "^1.1"
+        "simplesamlphp/composer-module-installer": "^1.2",
+        "simplesamlphp/simplesamlphp": "2.0.0-rc2"
     },
     "require-dev": {
-        "simplesamlphp/simplesamlphp": "1.14",
-        "phpunit/phpunit": "~4.8.35"
-    },
-    "autoload-dev": {
-      "files": ["tests/_autoload_modules.php"]
+        "simplesamlphp/simplesamlphp-test-framework": "^1.2.1"
     },
     "support": {
         "issues": "https://github.com/NIIF/simplesamlphp-module-attributescope/issues",
         "source": "https://github.com/NIIF/simplesamlphp-module-attributescope"
+    },
+    "config": {
+        "allow-plugins": {
+            "simplesamlphp/composer-module-installer": true
+        }
     }
 }
