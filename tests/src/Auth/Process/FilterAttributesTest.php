@@ -1,9 +1,10 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use SimpleSAML\Module\niif\attributescope\Auth\Process\FilterAttributes;
+use SimpleSAML\Configuration;
+use SimpleSAML\Module\attributescope\Auth\Process\FilterAttributes;
 
-class Test_FilterAttributes extends TestCase
+class FilterAttributesTest extends TestCase
 {
 
     /**
@@ -18,6 +19,11 @@ class Test_FilterAttributes extends TestCase
         $filter = new FilterAttributes($config, null);
         $filter->process($request);
         return $request;
+    }
+
+    protected function setUp(): void
+    {
+        Configuration::loadFromArray([], '[ARRAY]', 'simplesaml');
     }
 
     /**
@@ -50,7 +56,7 @@ class Test_FilterAttributes extends TestCase
      * Provide data for the tests
      * @return array test cases with each subtest being array of arguments
      */
-    public function wrongScopeDataProvider()
+    public static function wrongScopeDataProvider()
     {
         return array(
             // Empty Source
@@ -95,7 +101,7 @@ class Test_FilterAttributes extends TestCase
      * Provide data for the tests
      * @return array test cases with each subtest being array of arguments
      */
-    public function correctScopeDataProvider()
+    public static function correctScopeDataProvider()
     {
         return array(
             // Correct scope
