@@ -23,7 +23,7 @@ declare(strict_types=1);
  * @link     https://github.com/niif/simplesamlphp-module-attributescope
  */
 
-namespace SimpleSAML\Module\niif\attributescope\Auth\Process;
+namespace SimpleSAML\Module\attributescope\Auth\Process;
 use SimpleSAML\Auth;
 use SimpleSAML\Logger;
 
