@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<phpunit bootstrap="tests/bootstrap.php">
-  <coverage processUncoveredFiles="true">
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd" cacheDirectory=".phpunit.cache">
+  <coverage>
     <include>
       <directory suffix=".php">./src</directory>
     </include>
@@ -10,9 +10,11 @@
       <text outputFile="php://stdout" showUncoveredFiles="true"/>
     </report>
   </coverage>
-    <testsuites>
-        <testsuite name="The project's test suite">
-            <directory>./tests</directory>
-        </testsuite>
-    </testsuites>
+  <testsuites>
+    <testsuite name="The project's test suite">
+      <directory>./vendor/simplesamlphp/simplesamlphp-test-framework/src</directory>
+      <directory>./tests</directory>
+    </testsuite>
+  </testsuites>
+  <logging/>
 </phpunit>
