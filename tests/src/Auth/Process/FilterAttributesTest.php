@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+namespace SimpleSAML\Test\Module\attributescope\Auth\Process;
+
 use PHPUnit\Framework\TestCase;
 use SimpleSAML\Configuration;
 use SimpleSAML\Module\attributescope\Auth\Process\FilterAttributes;
 
 class FilterAttributesTest extends TestCase
 {
-
     /**
      * Helper function to run the filter with a given configuration.
      *
@@ -33,22 +36,22 @@ class FilterAttributesTest extends TestCase
      */
     public function testWrongScope($source)
     {
-        $config = array(
-            'attributesWithScopeSuffix' => array('sampleSuffixedAttribute')
-        );
-        $request = array(
-            'Attributes' => array(
-                'eduPersonPrincipalName' => array('joe@example.com'),
-                'nonScopedAttribute' => array('not-removed'),
-                'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com', 'missing-scope'),
-                'schacHomeOrganization' => array('example.com'),
-                'sampleSuffixedAttribute' => array('joe@example.com'),
-            ),
+        $config = [
+            'attributesWithScopeSuffix' => ['sampleSuffixedAttribute']
+        ];
+        $request = [
+            'Attributes' => [
+                'eduPersonPrincipalName' => ['joe@example.com'],
+                'nonScopedAttribute' => ['not-removed'],
+                'eduPersonScopedAffiliation' => ['student@example.com', 'staff@example.com', 'missing-scope'],
+                'schacHomeOrganization' => ['example.com'],
+                'sampleSuffixedAttribute' => ['joe@example.com'],
+            ],
             'Source' => $source,
-        );
+        ];
         $result = self::processFilter($config, $request);
         $attributes = $result['Attributes'];
-        $expectedData = array('nonScopedAttribute' => array('not-removed'));
+        $expectedData = ['nonScopedAttribute' => ['not-removed']];
         $this->assertEquals($expectedData, $attributes, "Only incorrectly scoped attributes should be removed");
     }
 
@@ -58,20 +61,20 @@ class FilterAttributesTest extends TestCase
      */
     public static function wrongScopeDataProvider()
     {
-        return array(
+        return [
             // Empty Source
-            array(array()),
+            [[]],
             // No scope value set
-            array(array('scope' => null)),
+            [['scope' => null]],
             // Empty array
-            array(array('scope' => array())),
+            [['scope' => []]],
             // Scope mismatch on leading .
-            array(array('scope' => array('.example.com'))),
+            [['scope' => ['.example.com']]],
             // Scope mismatch on 's' instead of '.
-            array(array('scope' => array('examplescom'))),
+            [['scope' => ['examplescom']]],
             // No wildcard match
-            array(array('scope' => array('.com'))),
-        );
+            [['scope' => ['.com']]],
+        ];
     }
 
     /**
@@ -81,17 +84,17 @@ class FilterAttributesTest extends TestCase
      */
     public function testCorrectScope($source)
     {
-        $expectedData = array(
-            'eduPersonPrincipalName' => array('joe@example.com'),
-            'nonScopedAttribute' => array('not-removed'),
-            'eduPersonScopedAffiliation' => array('student@example.com', 'staff@example.com'),
-            'schacHomeOrganization' => array('example.com')
-        );
-        $config = array();
-        $request = array(
+        $expectedData = [
+            'eduPersonPrincipalName' => ['joe@example.com'],
+            'nonScopedAttribute' => ['not-removed'],
+            'eduPersonScopedAffiliation' => ['student@example.com', 'staff@example.com'],
+            'schacHomeOrganization' => ['example.com']
+        ];
+        $config = [];
+        $request = [
             'Attributes' => $expectedData,
             'Source' => $source,
-        );
+        ];
         $result = self::processFilter($config, $request);
         $attributes = $result['Attributes'];
         $this->assertEquals($expectedData, $attributes, "All attributes should survive");
@@ -103,35 +106,35 @@ class FilterAttributesTest extends TestCase
      */
     public static function correctScopeDataProvider()
     {
-        return array(
+        return [
             // Correct scope
-            array(array('scope' => array('example.com'))),
+            [['scope' => ['example.com']]],
             // Multiple scopes
-            array(array('scope' => array('abc.com', 'example.com', 'xyz.com'))),
-        );
+            [['scope' => ['abc.com', 'example.com', 'xyz.com']]],
+        ];
     }
 
     public function testIgnoreCaseInScope()
     {
-        $config = array(
-            'attributesWithScopeSuffix' => array('sampleSuffixedAttribute'),
+        $config = [
+            'attributesWithScopeSuffix' => ['sampleSuffixedAttribute'],
             'ignoreCase' => true,
-        );
-        $request = array(
-            'Attributes' => array(
-                'eduPersonScopedAffiliation' => array('student@example.com', 'staff@EXAMPLE.COM', 'member@bad.com'),
-                'sampleSuffixedAttribute' => array('joe@example.com', 'bob@EXAMPLE.COM', 'wrong@bad.com'),
-            ),
-            'Source' => array(
-                'scope' => array('example.com')
-            )
-        );
+        ];
+        $request = [
+            'Attributes' => [
+                'eduPersonScopedAffiliation' => ['student@example.com', 'staff@EXAMPLE.COM', 'member@bad.com'],
+                'sampleSuffixedAttribute' => ['joe@example.com', 'bob@EXAMPLE.COM', 'wrong@bad.com'],
+            ],
+            'Source' => [
+                'scope' => ['example.com']
+            ]
+        ];
         $result = self::processFilter($config, $request);
         $attributes = $result['Attributes'];
-        $expectedData = array(
-            'eduPersonScopedAffiliation' => array('student@example.com', 'staff@EXAMPLE.COM'),
-            'sampleSuffixedAttribute' => array('joe@example.com', 'bob@EXAMPLE.COM'),
-            );
+        $expectedData = [
+            'eduPersonScopedAffiliation' => ['student@example.com', 'staff@EXAMPLE.COM'],
+            'sampleSuffixedAttribute' => ['joe@example.com', 'bob@EXAMPLE.COM'],
+            ];
         $this->assertEquals($expectedData, $attributes, "Scope case is ignored.");
     }
 
@@ -140,31 +143,31 @@ class FilterAttributesTest extends TestCase
      */
     public function testMixedMultivaluedAttributes()
     {
-        $config = array();
-        $request = array(
-            'Attributes' => array(
-                'nonScopedAttribute' => array('not-removed'),
-                'eduPersonScopedAffiliation' => array(
+        $config = [];
+        $request = [
+            'Attributes' => [
+                'nonScopedAttribute' => ['not-removed'],
+                'eduPersonScopedAffiliation' => [
                     'faculty@abc.com',
                     'student@example.com',
                     'member@EXamPLE.com', // scope is case sensitive
                     'staff@other.com',
                     'member@a@example.com',
                     '@example.com'
-                ),
+                ],
                 // schacHomeOrganization is required to be single valued and gets filtered out if multi-valued
-                'schacHomeOrganization' => array('abc.com', 'example.com', 'other.com')
-            ),
-            'Source' => array(
-                'scope' => array('example.com'),
+                'schacHomeOrganization' => ['abc.com', 'example.com', 'other.com']
+            ],
+            'Source' => [
+                'scope' => ['example.com'],
                 'entityid' => 'https://example.com/idp'
-            ),
-        );
+            ],
+        ];
         $result = self::processFilter($config, $request);
-        $expectedData = array(
-            'nonScopedAttribute' => array('not-removed'),
-            'eduPersonScopedAffiliation' => array('student@example.com'),
-        );
+        $expectedData = [
+            'nonScopedAttribute' => ['not-removed'],
+            'eduPersonScopedAffiliation' => ['student@example.com'],
+        ];
         $attributes = $result['Attributes'];
         $this->assertEquals($expectedData, $attributes, "Incorrectly scoped values should be removed");
     }
@@ -175,32 +178,32 @@ class FilterAttributesTest extends TestCase
     public function testIgnoreSourceScope()
     {
 
-        $expectedData = array(
-            'nonScopedAttribute' => array('not-removed'),
-            'eduPersonScopedAffiliation' => array('faculty@abc.com', 'student@example.com', 'staff@other.com'),
-            'schacHomeOrganization' => array('random.com')
-        );
-        $request = array(
+        $expectedData = [
+            'nonScopedAttribute' => ['not-removed'],
+            'eduPersonScopedAffiliation' => ['faculty@abc.com', 'student@example.com', 'staff@other.com'],
+            'schacHomeOrganization' => ['random.com']
+        ];
+        $request = [
             'Attributes' => $expectedData,
-            'Source' => array(
-                'scope' => array('example.com'),
+            'Source' => [
+                'scope' => ['example.com'],
                 'entityid' => 'https://example.com/idp'
-            )
-        );
+            ]
+        ];
 
         // Test with entity ID that does NOT match the Source
-        $config = array(
-            'ignoreCheckForEntities' => array('https://NOMATCH.com/idp')
-        );
+        $config = [
+            'ignoreCheckForEntities' => ['https://NOMATCH.com/idp']
+        ];
         $result = self::processFilter($config, $request);
 
         $attributes = $result['Attributes'];
         $this->assertFalse(array_key_exists('schacHomeOrganization', $attributes), 'Scope check shouldn\t be ignored');
 
         // Test with entity ID that does match the Source
-        $config = array(
-            'ignoreCheckForEntities' => array('https://example.com/idp')
-        );
+        $config = [
+            'ignoreCheckForEntities' => ['https://example.com/idp']
+        ];
         $result = self::processFilter($config, $request);
 
         $attributes = $result['Attributes'];
@@ -213,9 +216,9 @@ class FilterAttributesTest extends TestCase
     public function testAttributeSuffix()
     {
 
-        $request = array(
-            'Attributes' => array(
-                'department' => array(
+        $request = [
+            'Attributes' => [
+                'department' => [
                     // Valid values
                     'engineering.example.com', // Subdomain
                     'example.com', // scope
@@ -224,8 +227,8 @@ class FilterAttributesTest extends TestCase
                     'invalid-example.com', // not subdomain
                     'cexample.com',
                     'examplecom',
-                ),
-                'email' => array(
+                ],
+                'email' => [
                     // Valid values
                     'user@example.com',
                     'user@gsb.example.com',
@@ -237,31 +240,31 @@ class FilterAttributesTest extends TestCase
                     // scoped values need data before the '@'
                     '@example.com',
                     '@other.example.com',
-                    ),
-            ),
-            'Source' => array(
-                'scope' => array('example.com'),
+                    ],
+            ],
+            'Source' => [
+                'scope' => ['example.com'],
                 'entityid' => 'https://example.com/idp'
-            )
-        );
+            ]
+        ];
 
-        $config = array(
-            'attributesWithScopeSuffix' => array('department', 'email')
-        );
+        $config = [
+            'attributesWithScopeSuffix' => ['department', 'email']
+        ];
         $result = self::processFilter($config, $request);
 
         $attributes = $result['Attributes'];
-        $expectedData = array(
-            'department' => array(
+        $expectedData = [
+            'department' => [
                 'engineering.example.com',
                 'example.com',
                 '.example.com',
-            ),
-            'email' => array(
+            ],
+            'email' => [
                 'user@example.com',
                 'user@gsb.example.com',
-            ),
-        );
+            ],
+        ];
         $this->assertEquals($expectedData, $attributes, "Incorrectly suffixed variables should be removed");
     }
 }

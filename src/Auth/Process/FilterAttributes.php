@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 /**
  * Filter to remove
@@ -23,7 +22,10 @@ declare(strict_types=1);
  * @link     https://github.com/niif/simplesamlphp-module-attributescope
  */
 
+declare(strict_types=1);
+
 namespace SimpleSAML\Module\attributescope\Auth\Process;
+
 use SimpleSAML\Auth;
 use SimpleSAML\Logger;
 
@@ -53,24 +55,24 @@ use SimpleSAML\Logger;
 
 class FilterAttributes extends Auth\ProcessingFilter
 {
-    private array $_attributesWithScope = array(
+    private array $attributesWithScope = [
         'eduPersonPrincipalName',
         'eduPersonScopedAffiliation',
-        );
+    ];
 
-    private array $_scopeAttributes = array(
+    private array $scopeAttributes = [
         'schacHomeOrganization',
-        );
+    ];
 
-    private array $_ignoreCheckForEntities = array();
+    private array $ignoreCheckForEntities = [];
 
-    private array $_attributesWithScopeSuffix = array();
+    private array $attributesWithScopeSuffix = [];
 
-    private bool $_ignoreCase = false;
+    private bool $ignoreCase = false;
 
     /**
      * Constructor
-     * 
+     *
      * @param array $config   simplesamlphp configuration
      * @param mixed $reserved reserved
      */
@@ -78,64 +80,68 @@ class FilterAttributes extends Auth\ProcessingFilter
     {
         parent::__construct($config, $reserved);
         if (array_key_exists('attributesWithScope', $config)) {
-            $this->_attributesWithScope = $config['attributesWithScope'];
+            $this->attributesWithScope = $config['attributesWithScope'];
         }
         if (array_key_exists('scopeAttributes', $config)) {
-            $this->_scopeAttributes = $config['scopeAttributes'];
+            $this->scopeAttributes = $config['scopeAttributes'];
         }
         if (array_key_exists('ignoreCheckForEntities', $config)) {
-            $this->_ignoreCheckForEntities = $config['ignoreCheckForEntities'];
+            $this->ignoreCheckForEntities = $config['ignoreCheckForEntities'];
         }
         if (array_key_exists('attributesWithScopeSuffix', $config)) {
-            $this->_attributesWithScopeSuffix = $config['attributesWithScopeSuffix'];
+            $this->attributesWithScopeSuffix = $config['attributesWithScopeSuffix'];
         }
         if (array_key_exists('ignoreCase', $config)) {
-            $this->_ignoreCase = $config['ignoreCase'];
+            $this->ignoreCase = $config['ignoreCase'];
         }
     }
 
     /**
      * Process the filter
-     * 
+     *
      * @param array $state the state array
-     * 
+     *
      * @return void
      */
     public function process(array &$state): void
     {
         $src = $state['Source'];
 
-        if (isset($src['entityid']) && in_array($src['entityid'], $this->_ignoreCheckForEntities, true)) {
+        if (isset($src['entityid']) && in_array($src['entityid'], $this->ignoreCheckForEntities, true)) {
             Logger::debug('Ignoring scope checking for assertions from ' . $src['entityid']);
             return;
         }
 
         $noscope = false;
-        if (!isset($src['scope']) 
-            || !is_array($src['scope']) 
+        if (
+            !isset($src['scope'])
+            || !is_array($src['scope'])
             || !count($src['scope'])
         ) {
             Logger::warning('No scope extension in IdP metadata, all scoped attributes are filtered out!');
             $noscope = true;
         }
-        $scopes = $noscope ? array() : $src['scope'];
+        $scopes = $noscope ? [] : $src['scope'];
 
-        foreach ($this->_attributesWithScope as $attributesWithScope) {
+        foreach ($this->attributesWithScope as $attributesWithScope) {
             if (!isset($state['Attributes'][$attributesWithScope])) {
                 continue;
             }
             if ($noscope) {
-                Logger::info('Attribute '.$attributesWithScope.' is filtered out due to missing scope information in IdP metadata.');
+                Logger::info(
+                    'Attribute ' . $attributesWithScope .
+                    ' is filtered out due to missing scope information in IdP metadata.'
+                );
                 unset($state['Attributes'][$attributesWithScope]);
                 continue;
             }
             $values = $state['Attributes'][$attributesWithScope];
-            $newValues = array();
+            $newValues = [];
             foreach ($values as $value) {
-                if ($this->_isProperlyScoped($value, $scopes)) {
+                if ($this->isProperlyScoped($value, $scopes)) {
                     $newValues[] = $value;
                 } else {
-                    Logger::warning('Attribute value ('.$value.') is removed by attributescope check.');
+                    Logger::warning('Attribute value (' . $value . ') is removed by attributescope check.');
                 }
             }
 
@@ -146,34 +152,41 @@ class FilterAttributes extends Auth\ProcessingFilter
             }
         }
         // Filter out scopeAttributes if the value does not match any scope values
-        foreach ($this->_scopeAttributes as $scopeAttribute) {
+        foreach ($this->scopeAttributes as $scopeAttribute) {
             if (array_key_exists($scopeAttribute, $state['Attributes'])) {
                 if (count($state['Attributes'][$scopeAttribute]) != 1) {
-                    Logger::warning('$scopeAttribute (' . $scopeAttribute . ') must be single valued. Filtering out.');
+                    Logger::warning(
+                        '$scopeAttribute (' . $scopeAttribute . ') must be single valued. Filtering out.'
+                    );
                     unset($state['Attributes'][$scopeAttribute]);
                 } elseif (!in_array($state['Attributes'][$scopeAttribute][0], $scopes)) {
-                    Logger::warning('Scope attribute (' . $scopeAttribute . ') does not match metadata. Filtering out.');
+                    Logger::warning(
+                        'Scope attribute (' . $scopeAttribute . ') does not match metadata. Filtering out.'
+                    );
                     unset($state['Attributes'][$scopeAttribute]);
                 }
             }
         }
 
-        foreach ($this->_attributesWithScopeSuffix as $attributeWithSuffix) {
+        foreach ($this->attributesWithScopeSuffix as $attributeWithSuffix) {
             if (!isset($state['Attributes'][$attributeWithSuffix])) {
                 continue;
             }
             if ($noscope) {
-                Logger::info('Attribute '.$attributeWithSuffix.' is filtered out due to missing scope information in IdP metadata.');
+                Logger::info(
+                    'Attribute ' . $attributeWithSuffix .
+                    ' is filtered out due to missing scope information in IdP metadata.'
+                );
                 unset($state['Attributes'][$attributeWithSuffix]);
                 continue;
             }
             $values = $state['Attributes'][$attributeWithSuffix];
-            $newValues = array();
+            $newValues = [];
             foreach ($values as $value) {
-                if ($this->_isProperlySuffixed($value, $scopes)) {
+                if ($this->isProperlySuffixed($value, $scopes)) {
                     $newValues[] = $value;
                 } else {
-                    Logger::warning('Attribute value ('.$value.') is removed by attributeWithScopeSuffix check.');
+                    Logger::warning('Attribute value (' . $value . ') is removed by attributeWithScopeSuffix check.');
                 }
             }
 
@@ -193,10 +206,10 @@ class FilterAttributes extends Auth\ProcessingFilter
      *
      * @return bool true if properly scoped
      */
-    private function _isProperlyScoped(string $value, array $scopes): bool
+    private function isProperlyScoped(string $value, array $scopes): bool
     {
         foreach ($scopes as $scope) {
-            $preg = '/^[^@]+@'.preg_quote($scope).'$/' . ($this->_ignoreCase ? 'i' : '');
+            $preg = '/^[^@]+@' . preg_quote($scope) . '$/' . ($this->ignoreCase ? 'i' : '');
             if (preg_match($preg, $value) == 1) {
                 return true;
             }
@@ -214,11 +227,11 @@ class FilterAttributes extends Auth\ProcessingFilter
      *
      * @return bool true if attribute is suffixed with a scope
      */
-    private function _isProperlySuffixed(string $value, array $scopes): bool
+    private function isProperlySuffixed(string $value, array $scopes): bool
     {
         foreach ($scopes as $scope) {
-            $scopeRegex = '/^[^@]+@(.*\.)?'.preg_quote($scope).'$/' . ($this->_ignoreCase ? 'i' : '');
-            $subdomainRegex = '/^([^@]*\.)?'.preg_quote($scope).'$/' . ($this->_ignoreCase ? 'i' : '');
+            $scopeRegex = '/^[^@]+@(.*\.)?' . preg_quote($scope) . '$/' . ($this->ignoreCase ? 'i' : '');
+            $subdomainRegex = '/^([^@]*\.)?' . preg_quote($scope) . '$/' . ($this->ignoreCase ? 'i' : '');
             if (preg_match($subdomainRegex, $value) === 1 || preg_match($scopeRegex, $value) === 1) {
                 return true;
             }
